@@ -2,9 +2,15 @@
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CLAUDE_DIR="$HOME/.claude"
+CLAUDE_DIR="${1:-$HOME/.claude}"
+
+if [[ ! -d "$CLAUDE_DIR" ]]; then
+  echo "Error: directory not found: $CLAUDE_DIR" >&2
+  exit 1
+fi
 
 echo "Exporting Claude config to repo..."
+echo "  source: $CLAUDE_DIR"
 
 # --- CLAUDE.md: overwrite ---
 cp "$CLAUDE_DIR/claude.md" "$REPO_DIR/CLAUDE.md"

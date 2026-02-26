@@ -15,13 +15,19 @@ cd my-claude-code-configuration
 ./install.sh
 ```
 
+To target a specific `.claude` directory (e.g. a sandbox environment):
+
+```bash
+./install.sh /path/to/.claude
+```
+
 `install.sh` will:
-- Overwrite `~/.claude/claude.md` with this repo's `CLAUDE.md`
-- Merge skills into `~/.claude/skills/` (adds/updates repo skills, keeps any machine-only skills)
+- Overwrite `<target>/claude.md` with this repo's `CLAUDE.md`
+- Merge skills into `<target>/skills/` (adds/updates repo skills, keeps any machine-only skills)
 
 ## Sync Changes Back to This Repo
 
-After editing `~/.claude/claude.md` or adding new skills locally:
+After editing `claude.md` or adding new skills locally:
 
 ```bash
 cd /path/to/my-claude-code-configuration
@@ -31,6 +37,12 @@ git commit -m "update config"
 git push
 ```
 
+To export from a specific `.claude` directory:
+
+```bash
+./export.sh /path/to/.claude
+```
+
 `export.sh` does the reverse: copies your local config into the repo without deleting repo-only skills.
 
 ## Pull Latest Config on an Existing Machine
@@ -38,5 +50,6 @@ git push
 ```bash
 cd /path/to/my-claude-code-configuration
 git pull
-./install.sh
+./install.sh                        # default ~/.claude
+./install.sh /path/to/.claude       # or specify a path
 ```
