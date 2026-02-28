@@ -56,7 +56,7 @@
     - Manifest updated after successful apply
     - Completion message shows counts (installed/updated/removed)
 
-- [ ] **Build uninstall flow**
+- [x] **Build uninstall flow**
 
   - Purpose: Allows selective removal of previously-installed items without touching locally-created ones
   - Scope: `install.sh uninstall` subcommand, depends on tasks 1-2

@@ -85,7 +85,7 @@ test_uninstall_subcommand() {
 
   local output
   output="$(PATH="$MOCK_BIN:$PATH" bash "$INSTALL_SH" uninstall "$CLAUDE_DIR" 2>&1)" || true
-  assert_contains "routes to uninstall" "Uninstall flow not yet implemented" "$output"
+  assert_contains "routes to uninstall" "Nothing is managed" "$output"
 
   teardown_temp
 }
@@ -111,7 +111,7 @@ test_uninstall_with_custom_path() {
   local output
   output="$(PATH="$MOCK_BIN:$PATH" bash "$INSTALL_SH" uninstall "$CLAUDE_DIR" 2>&1)" || true
   assert_contains "custom path shown" "$CLAUDE_DIR" "$output"
-  assert_contains "routes to uninstall" "Uninstall flow not yet implemented" "$output"
+  assert_contains "routes to uninstall" "Nothing is managed" "$output"
 
   teardown_temp
 }

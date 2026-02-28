@@ -399,12 +399,12 @@ install_flow() {
   # ── Stages 2-4: Agents, Commands, Skills ────────────────────────────────
 
   local stage_num=2
-  local stage_type stage_label
+  local stage_type stage_label stage_label_lower
   for stage_type in agent command skill; do
     case "$stage_type" in
-      agent)   stage_label="Agents" ;;
-      command) stage_label="Commands" ;;
-      skill)   stage_label="Skills" ;;
+      agent)   stage_label="Agents"; stage_label_lower="agents" ;;
+      command) stage_label="Commands"; stage_label_lower="commands" ;;
+      skill)   stage_label="Skills"; stage_label_lower="skills" ;;
     esac
 
     local stage_items
@@ -415,7 +415,7 @@ install_flow() {
     print_header "Stage $stage_num/4: $stage_label"
 
     if [[ "$stage_count" -eq 0 ]]; then
-      gum style --foreground 245 "  No ${stage_label,,} found in repo."
+      gum style --foreground 245 "  No $stage_label_lower found in repo."
       echo ""
       stage_num=$((stage_num + 1))
       continue
@@ -565,6 +565,129 @@ install_flow() {
   print_success "Done — $parts."
 }
 
+# ─── Uninstall flow ──────────────────────────────────────────────────────────
+# Selective removal of manifest-tracked items. CLAUDE.md is excluded.
+
+uninstall_flow() {
+  local manifest
+  manifest="$(manifest_read)"
+
+  local key_count
+  key_count="$(echo "$manifest" | jq 'keys | length')"
+  if [[ "$key_count" -eq 0 ]]; then
+    print_success "Nothing is managed — no items to uninstall."
+    return
+  fi
+
+  # Filter out claude-md — not removable via uninstall
+  local managed_keys
+  managed_keys="$(echo "$manifest" | jq -r 'keys[] | select(startswith("claude-md:") | not)')"
+
+  if [[ -z "$managed_keys" ]]; then
+    print_success "Nothing is managed — no items to uninstall."
+    return
+  fi
+
+  local remove_keys=""
+  local count_remove=0
+
+  local stage_num=1
+  local stage_type stage_label stage_label_lower
+  for stage_type in agent command skill; do
+    case "$stage_type" in
+      agent)   stage_label="Agents"; stage_label_lower="agents" ;;
+      command) stage_label="Commands"; stage_label_lower="commands" ;;
+      skill)   stage_label="Skills"; stage_label_lower="skills" ;;
+    esac
+
+    # Get manifest keys for this type
+    local stage_keys
+    stage_keys="$(echo "$managed_keys" | grep "^${stage_type}:" || true)"
+
+    print_header "Stage $stage_num/3: $stage_label"
+
+    if [[ -z "$stage_keys" ]]; then
+      gum style --foreground 245 "  No managed $stage_label_lower."
+      echo ""
+      stage_num=$((stage_num + 1))
+      continue
+    fi
+
+    # Build gum choose labels — all items pre-selected for removal
+    local choices="" preselected=""
+    while IFS= read -r key; do
+      [[ -z "$key" ]] && continue
+      local name
+      name="${key#*:}"
+      local label="[$key] $name"
+      choices+="$label"$'\n'
+      preselected+="$label"$'\n'
+    done <<< "$stage_keys"
+
+    choices="${choices%$'\n'}"
+    preselected="${preselected%$'\n'}"
+
+    # Run gum choose with all items pre-selected
+    local selected=""
+    local gum_args=("--no-limit")
+    while IFS= read -r line; do
+      [[ -n "$line" ]] && gum_args+=("--selected" "$line")
+    done <<< "$preselected"
+
+    selected="$(echo "$choices" | gum choose "${gum_args[@]}")" || true
+
+    if [[ -n "$selected" ]]; then
+      while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        local sel_key
+        sel_key="$(parse_choice_key "$line")"
+        remove_keys+="$sel_key"$'\n'
+        count_remove=$((count_remove + 1))
+      done <<< "$selected"
+    fi
+
+    echo ""
+    stage_num=$((stage_num + 1))
+  done
+
+  remove_keys="${remove_keys%$'\n'}"
+
+  if [[ -z "$remove_keys" ]]; then
+    print_success "No items selected — nothing to do."
+    return
+  fi
+
+  # ── Confirmation summary ─────────────────────────────────────────────────
+
+  print_header "Summary"
+
+  while IFS= read -r key; do
+    [[ -z "$key" ]] && continue
+    local rname
+    rname="${key#*:}"
+    print_status_orphaned "$rname — remove"
+  done <<< "$remove_keys"
+
+  echo ""
+  if ! gum confirm "Remove these items?"; then
+    gum style --foreground 245 "Cancelled — no changes made."
+    return
+  fi
+
+  # ── Apply removals ──────────────────────────────────────────────────────
+
+  while IFS= read -r key; do
+    [[ -z "$key" ]] && continue
+    local rtype rname
+    rtype="${key%%:*}"
+    rname="${key#*:}"
+    apply_remove_item "$rtype" "$rname"
+  done <<< "$remove_keys"
+
+  echo ""
+  print_success "Done — $count_remove removed."
+}
+
 # ─── Defaults ───────────────────────────────────────────────────────────────
 # Set here so they're available when sourced for testing.
 
@@ -602,8 +725,7 @@ main() {
       install_flow
       ;;
     uninstall)
-      # Will be implemented in "Build uninstall flow" task
-      echo "Uninstall flow not yet implemented."
+      uninstall_flow
       ;;
   esac
 }
