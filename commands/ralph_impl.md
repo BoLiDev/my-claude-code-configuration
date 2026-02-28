@@ -76,7 +76,39 @@ Now that a task is selected:
 
 3. **Understand existing patterns and conventions** — your implementation should be consistent with the codebase
 
-### Step 3: Implement
+### Step 3: Technical Decisions
+
+Based on your investigation, assess whether this task introduces **external dependencies** — new libraries, frameworks, APIs, or CLI tools not already in the project.
+
+Consider:
+- Does the task require capabilities not covered by existing dependencies?
+- Are there multiple viable libraries for a needed capability?
+- Does the spec reference external services or APIs not yet integrated?
+
+**If decisions exist** — present them and wait for user confirmation:
+
+```
+## Technical Decisions
+
+Based on my investigation, this task requires the following technical decisions:
+
+1. **[Capability needed]**: [Why it's needed]
+   - Option A: `library-a` — [brief rationale]
+   - Option B: `library-b` — [brief rationale]
+   - Recommendation: Option A — [why]
+
+Please confirm or adjust before I proceed with implementation.
+```
+
+**If no decisions are needed** — state and proceed:
+
+```
+No new external dependencies needed for this task — proceeding with implementation.
+```
+
+This step focuses on external dependencies only. Internal patterns (file structure, design patterns) are already handled by `codebase-pattern-finder` in Step 2.
+
+### Step 4: Implement
 
 1. **Write implementation code** following existing patterns and conventions
 
@@ -89,7 +121,7 @@ Now that a task is selected:
 
 3. **Implement completely** — no placeholders, stubs, or TODO comments. If functionality is missing that's needed for your task, add it per the specs.
 
-### Step 4: Validate
+### Step 5: Validate
 
 1. **Run the tests you just wrote** — they must all pass
 
@@ -103,7 +135,7 @@ Now that a task is selected:
 
 4. If you cannot resolve a failure after reasonable effort, document the issue clearly and present it to the user — do NOT silently skip it.
 
-### Step 5: Update Plan
+### Step 6: Update Plan
 
 1. **Check off completed task(s)** in `IMPLEMENTATION_PLAN.md`
 
@@ -111,7 +143,7 @@ Now that a task is selected:
 
 3. If you discover issues outside current task scope, add them as new unchecked items to the plan
 
-### Step 6: Commit Checkpoint
+### Step 7: Commit Checkpoint
 
 Present to the user:
 
@@ -195,6 +227,9 @@ E2E test covering transient failures.
 [Reads specs/stt-integration.md for acceptance criteria]
 [Spawns codebase-pattern-finder for error handling patterns]
 [Spawns codebase-analyzer on src/main/stt.ts]
+
+No new external dependencies needed for this task — proceeding with implementation.
+
 [Implements retry logic + E2E test]
 [Runs new test — passes]
 [Runs full project validation — all pass]
