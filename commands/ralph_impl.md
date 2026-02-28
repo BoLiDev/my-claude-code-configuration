@@ -78,12 +78,16 @@ Now that a task is selected:
 
 ### Step 3: Technical Decisions
 
-Based on your investigation, assess whether this task introduces **external dependencies** — new libraries, frameworks, APIs, or CLI tools not already in the project.
+Based on your investigation, assess whether this task introduces anything **novel to the project** that warrants discussion before implementation. Two categories:
 
-Consider:
-- Does the task require capabilities not covered by existing dependencies?
+**External dependencies** — new libraries, frameworks, APIs, or CLI tools:
+- Any new external dependency is inherently novel and requires confirmation
 - Are there multiple viable libraries for a needed capability?
-- Does the spec reference external services or APIs not yet integrated?
+
+**New internal mechanisms** — patterns or approaches not yet used in the codebase:
+- Did `codebase-pattern-finder` (Step 2) find similar patterns? If not, this is a new mechanism
+- Examples: first use of event sourcing, first WebSocket implementation, first background worker, a new data flow pattern
+- If the codebase already uses a similar pattern, follow it — no decision needed
 
 **If decisions exist** — present them and wait for user confirmation:
 
@@ -92,9 +96,9 @@ Consider:
 
 Based on my investigation, this task requires the following technical decisions:
 
-1. **[Capability needed]**: [Why it's needed]
-   - Option A: `library-a` — [brief rationale]
-   - Option B: `library-b` — [brief rationale]
+1. **[Capability or mechanism]**: [Why it's needed]
+   - Option A: [approach] — [brief rationale]
+   - Option B: [approach] — [brief rationale]
    - Recommendation: Option A — [why]
 
 Please confirm or adjust before I proceed with implementation.
@@ -103,10 +107,10 @@ Please confirm or adjust before I proceed with implementation.
 **If no decisions are needed** — state and proceed:
 
 ```
-No new external dependencies needed for this task — proceeding with implementation.
+No novel dependencies or mechanisms for this task — proceeding with implementation.
 ```
 
-This step focuses on external dependencies only. Internal patterns (file structure, design patterns) are already handled by `codebase-pattern-finder` in Step 2.
+The key signal: if `codebase-pattern-finder` found existing patterns to follow and no new external dependencies are needed, proceed. If either search came up empty, pause and confirm.
 
 ### Step 4: Implement
 
@@ -228,7 +232,7 @@ E2E test covering transient failures.
 [Spawns codebase-pattern-finder for error handling patterns]
 [Spawns codebase-analyzer on src/main/stt.ts]
 
-No new external dependencies needed for this task — proceeding with implementation.
+No novel dependencies or mechanisms for this task — proceeding with implementation.
 
 [Implements retry logic + E2E test]
 [Runs new test — passes]

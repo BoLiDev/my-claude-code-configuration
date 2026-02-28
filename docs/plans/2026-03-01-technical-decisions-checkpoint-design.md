@@ -21,12 +21,16 @@ This is the ideal moment to surface dependency decisions — deep enough to know
 
 ### Behavior
 
-The system synthesizes its investigation findings and identifies **external dependency decisions**: situations where the task requires introducing a new library, framework, API, or tool not already in the project.
+The system synthesizes its investigation findings and identifies **novel technical decisions** — anything the project has never done before. Two categories:
 
-It considers:
-- Does the task require functionality not covered by existing dependencies?
-- Are there multiple viable libraries for a needed capability?
-- Does the spec reference external services or APIs not yet integrated?
+**External dependencies** — new libraries, frameworks, APIs, or CLI tools:
+- Any new external dependency is inherently novel and always requires confirmation
+- Multiple viable libraries for a needed capability should be presented as options
+
+**New internal mechanisms** — patterns or approaches not yet used in the codebase:
+- The key signal comes from `codebase-pattern-finder` (Step 2): if it found no similar patterns, the mechanism is new
+- Examples: first use of event sourcing, first WebSocket implementation, first background worker
+- If the codebase already uses a similar pattern, follow it — no decision needed
 
 ### Output format
 
@@ -37,12 +41,10 @@ It considers:
 
 Based on my investigation, this task requires the following technical decisions:
 
-1. **[Capability needed]**: [Why it's needed]
-   - Option A: `library-a` — [brief rationale]
-   - Option B: `library-b` — [brief rationale]
+1. **[Capability or mechanism]**: [Why it's needed]
+   - Option A: [approach] — [brief rationale]
+   - Option B: [approach] — [brief rationale]
    - Recommendation: Option A — [why]
-
-2. **[Another decision]**: ...
 
 Please confirm or adjust before I proceed with implementation.
 ```
@@ -50,12 +52,12 @@ Please confirm or adjust before I proceed with implementation.
 **When no decisions are needed** — state and continue automatically:
 
 ```
-No new external dependencies needed for this task — proceeding with implementation.
+No novel dependencies or mechanisms for this task — proceeding with implementation.
 ```
 
 ### Scope
 
-Focused on **external dependencies** only: new packages, new API integrations, new CLI tools. Internal architectural patterns (file structure, design patterns, state management) are already handled by the existing `codebase-pattern-finder` investigation step and don't require a human gate.
+Focused on **novelty**: anything the project has never done before, whether external (new packages, API integrations) or internal (new patterns, mechanisms). If `codebase-pattern-finder` found existing patterns to follow and no new external dependencies are needed, proceed automatically. If either search came up empty, pause and confirm.
 
 ## Changes required
 
