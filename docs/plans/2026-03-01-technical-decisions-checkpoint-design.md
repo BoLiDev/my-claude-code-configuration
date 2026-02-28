@@ -8,7 +8,7 @@ Specs and planning phases intentionally don't address these decisions (they defi
 
 ## Solution
 
-Add a new **Step 2.5: Technical Decisions** to `ralph_impl.md`, placed between the current Step 2 (Investigate) and Step 3 (Implement). This step renumbers current Steps 3-6 to Steps 4-7.
+Add a new **Step 3: Technical Decisions** to `ralph_impl.md`, placed between the current Step 2 (Investigate) and the former Step 3 (Implement). The former Steps 3-6 are renumbered to Steps 4-7.
 
 ### Placement rationale
 

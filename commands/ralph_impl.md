@@ -89,7 +89,7 @@ Based on your investigation, assess whether this task introduces anything **nove
 - Examples: first use of event sourcing, first WebSocket implementation, first background worker, a new data flow pattern
 - If the codebase already uses a similar pattern, follow it — no decision needed
 
-**If decisions exist** — present them and wait for user confirmation:
+**If decisions exist** — present them and **wait for user confirmation before proceeding to Step 4**:
 
 ```
 ## Technical Decisions
@@ -218,7 +218,9 @@ To continue implementing, run `/ralph_impl` again.
 4. **Wait for agents to complete** before synthesizing findings
 5. **Verify agent results** — if something seems off, investigate further
 
-## Example Interaction Flow
+## Example Interaction Flows
+
+### Example: No decisions needed (common case)
 
 ```
 User: /ralph_impl
@@ -229,7 +231,7 @@ no unresolved dependencies. Will add exponential backoff in src/main/stt.ts with
 E2E test covering transient failures.
 
 [Reads specs/stt-integration.md for acceptance criteria]
-[Spawns codebase-pattern-finder for error handling patterns]
+[Spawns codebase-pattern-finder for error handling patterns — found existing retry pattern in src/main/http.ts]
 [Spawns codebase-analyzer on src/main/stt.ts]
 
 No novel dependencies or mechanisms for this task — proceeding with implementation.
@@ -261,4 +263,32 @@ Committed: "feat: add retry logic with exponential backoff for STT API calls"
 
 IMPLEMENTATION_PLAN.md updated — task checked off.
 To continue implementing, run `/ralph_impl` again.
+```
+
+### Example: Technical decisions required
+
+```
+User: /ralph_impl
+Assistant: [Reads IMPLEMENTATION_PLAN.md, scans specs/ directory, spawns research agents]
+
+Selecting **"Add rate limiting to API gateway"** — blocks the deployment task.
+
+[Reads specs/api-gateway.md for acceptance criteria]
+[Spawns codebase-pattern-finder for rate limiting patterns — found nothing similar]
+[Spawns codebase-analyzer on src/main/gateway.ts]
+
+## Technical Decisions
+
+Based on my investigation, this task requires the following technical decisions:
+
+1. **Rate limiting mechanism**: The spec requires request throttling, but the codebase has no rate limiting pattern
+   - Option A: `express-rate-limit` — well-maintained middleware, simple integration
+   - Option B: Custom token bucket in Redis — more flexible, higher implementation cost
+   - Recommendation: Option A — matches the project's preference for proven libraries
+
+Please confirm or adjust before I proceed with implementation.
+
+User: Go with Option A.
+Assistant: [Proceeds with implementation using express-rate-limit]
+...
 ```
