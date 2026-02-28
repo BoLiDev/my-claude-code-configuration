@@ -80,11 +80,11 @@ Now that a task is selected:
 
 1. **Write implementation code** following existing patterns and conventions
 
-2. **Write tests derived from acceptance criteria**:
+2. **Write tests derived from test requirements** (gathered in Step 2) and acceptance criteria:
 
-   - **Prefer end-to-end (E2E) tests** — they verify real user outcomes
-   - **Fall back to unit tests only** when E2E testing is genuinely impractical for the specific behavior
-   - Tests must directly trace back to acceptance criteria and test requirements from the specs
+   - **Think deeply before writing any test code.** Testing is not trivial — carefully consider what scenarios truly verify the feature works, what could go wrong, and how to orchestrate test cases effectively. Invest real effort in test design.
+   - **E2E tests are always the primary choice.** Attempt E2E first — they verify real user outcomes and catch integration issues that unit tests cannot. Only after confirming E2E is genuinely impractical for a specific behavior should you fall back to unit tests. When you do fall back, document why E2E was not feasible.
+   - Tests must trace directly to the test requirements gathered during Step 2 investigation and the acceptance criteria from specs
    - Tests are part of the task scope, not a separate step
 
 3. **Implement completely** — no placeholders, stubs, or TODO comments. If functionality is missing that's needed for your task, add it per the specs.
