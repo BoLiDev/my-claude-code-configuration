@@ -47,7 +47,8 @@ setup_test_repo() {
 run_with_diff() {
   local commands="$1"
   PATH="$MOCK_BIN:$PATH" bash -c '
-    source "'"$INSTALL_SH"'" "'"$CLAUDE_DIR"'" > /dev/null 2>&1
+    source "'"$INSTALL_SH"'"
+    CLAUDE_DIR="'"$CLAUDE_DIR"'"
     REPO_DIR="'"$TEST_REPO"'"
     '"$commands"'
   ' 2>&1

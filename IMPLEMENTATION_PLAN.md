@@ -41,7 +41,7 @@
     - Orphaned items (in manifest but no longer in repo) correctly detected
     - Skills use directory structure (`skills/<name>/SKILL.md`), not flat files
 
-- [ ] **Build interactive install flow with 4-stage wizard**
+- [x] **Build interactive install flow with 4-stage wizard**
 
   - Purpose: The primary user-facing feature — replaces the current batch copy with a diff-aware, selective install
   - Scope: `install.sh` install flow, depends on tasks 1-3

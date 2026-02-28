@@ -72,7 +72,7 @@ test_no_args_routes_to_install() {
   # Run with HOME pointing to temp so default path resolves
   local output
   output="$(HOME="$TEST_DIR" PATH="$MOCK_BIN:$PATH" bash "$INSTALL_SH" "$CLAUDE_DIR" 2>&1)" || true
-  assert_contains "routes to install" "Install flow not yet implemented" "$output"
+  assert_contains "routes to install" "Stage 1/4" "$output"
   assert_contains "shows target path" "$CLAUDE_DIR" "$output"
 
   teardown_temp
@@ -98,7 +98,7 @@ test_custom_path() {
   local output
   output="$(PATH="$MOCK_BIN:$PATH" bash "$INSTALL_SH" "$CLAUDE_DIR" 2>&1)" || true
   assert_contains "custom path shown" "$CLAUDE_DIR" "$output"
-  assert_contains "routes to install" "Install flow not yet implemented" "$output"
+  assert_contains "routes to install" "Stage 1/4" "$output"
 
   teardown_temp
 }

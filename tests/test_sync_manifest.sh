@@ -39,7 +39,8 @@ MOCK
 run_with_manifest() {
   local commands="$1"
   PATH="$MOCK_BIN:$PATH" bash -c '
-    source "'"$INSTALL_SH"'" "'"$CLAUDE_DIR"'" > /dev/null 2>&1
+    source "'"$INSTALL_SH"'"
+    CLAUDE_DIR="'"$CLAUDE_DIR"'"
     '"$commands"'
   ' 2>&1
 }
