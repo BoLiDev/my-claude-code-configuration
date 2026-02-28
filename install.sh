@@ -113,6 +113,139 @@ content_hash() {
   fi
 }
 
+# ─── Path resolution ────────────────────────────────────────────────────────
+# Maps asset type + name to filesystem paths in repo and on machine.
+
+repo_source_path() {
+  local type="$1" name="$2"
+  case "$type" in
+    claude-md) echo "$REPO_DIR/CLAUDE.md" ;;
+    agent)     echo "$REPO_DIR/agents/${name}.md" ;;
+    command)   echo "$REPO_DIR/commands/${name}.md" ;;
+    skill)     echo "$REPO_DIR/skills/${name}" ;;
+  esac
+}
+
+machine_target_path() {
+  local type="$1" name="$2"
+  case "$type" in
+    claude-md) echo "$CLAUDE_DIR/claude.md" ;;
+    agent)     echo "$CLAUDE_DIR/agents/${name}.md" ;;
+    command)   echo "$CLAUDE_DIR/commands/${name}.md" ;;
+    skill)     echo "$CLAUDE_DIR/skills/${name}" ;;
+  esac
+}
+
+# ─── Diff detection ─────────────────────────────────────────────────────────
+# Compares repo items against machine state to classify each as:
+#   new | modified | unchanged | orphaned
+# Returns a JSON array of {key, type, name, status, diff} objects.
+
+diff_item_exists() {
+  local type="$1" path="$2"
+  if [[ "$type" == "skill" ]]; then
+    [[ -d "$path" ]]
+  else
+    [[ -f "$path" ]]
+  fi
+}
+
+diff_classify() {
+  local type="$1" name="$2"
+  local machine_path repo_path
+  machine_path="$(machine_target_path "$type" "$name")"
+  repo_path="$(repo_source_path "$type" "$name")"
+
+  if ! diff_item_exists "$type" "$machine_path"; then
+    echo "new"
+    return
+  fi
+
+  local repo_hash machine_hash
+  repo_hash="$(content_hash "$repo_path")"
+  machine_hash="$(content_hash "$machine_path")"
+
+  if [[ "$repo_hash" == "$machine_hash" ]]; then
+    echo "unchanged"
+  else
+    echo "modified"
+  fi
+}
+
+diff_unified() {
+  local type="$1" name="$2"
+  local repo_path machine_path
+  repo_path="$(repo_source_path "$type" "$name")"
+  machine_path="$(machine_target_path "$type" "$name")"
+
+  if [[ "$type" == "skill" ]]; then
+    diff -ru "$machine_path" "$repo_path" 2>/dev/null || true
+  else
+    diff -u "$machine_path" "$repo_path" 2>/dev/null || true
+  fi
+}
+
+diff_item_to_json() {
+  local key="$1" type="$2" name="$3"
+  local status diff_text=""
+  status="$(diff_classify "$type" "$name")"
+  [[ "$status" == "modified" ]] && diff_text="$(diff_unified "$type" "$name")"
+  jq -n --arg k "$key" --arg t "$type" --arg n "$name" \
+    --arg s "$status" --arg d "$diff_text" \
+    '{key: $k, type: $t, name: $n, status: $s, diff: $d}'
+}
+
+diff_detect() {
+  local manifest items=""
+  manifest="$(manifest_read)"
+
+  # Classify items from repo
+  [[ -f "$REPO_DIR/CLAUDE.md" ]] && \
+    items+="$(diff_item_to_json "claude-md:CLAUDE.md" "claude-md" "CLAUDE.md")"$'\n'
+
+  local f name
+  for f in "$REPO_DIR"/agents/*.md; do
+    [[ -f "$f" ]] || continue
+    name="$(basename "$f" .md)"
+    items+="$(diff_item_to_json "agent:$name" "agent" "$name")"$'\n'
+  done
+
+  for f in "$REPO_DIR"/commands/*.md; do
+    [[ -f "$f" ]] || continue
+    name="$(basename "$f" .md)"
+    items+="$(diff_item_to_json "command:$name" "command" "$name")"$'\n'
+  done
+
+  local d
+  for d in "$REPO_DIR"/skills/*/; do
+    [[ -d "$d" ]] || continue
+    name="$(basename "$d")"
+    items+="$(diff_item_to_json "skill:$name" "skill" "$name")"$'\n'
+  done
+
+  # Orphaned items: in manifest but no longer in repo
+  local keys key type oname
+  keys="$(echo "$manifest" | jq -r 'keys[]' 2>/dev/null)" || keys=""
+  if [[ -n "$keys" ]]; then
+    while IFS= read -r key; do
+      type="${key%%:*}"
+      oname="${key#*:}"
+      local repo_path
+      repo_path="$(repo_source_path "$type" "$oname")"
+      if ! diff_item_exists "$type" "$repo_path"; then
+        items+="$(jq -n --arg k "$key" --arg t "$type" --arg n "$oname" \
+          '{key: $k, type: $t, name: $n, status: "orphaned", diff: ""}')"$'\n'
+      fi
+    done <<< "$keys"
+  fi
+
+  if [[ -n "$items" ]]; then
+    echo "$items" | jq -s '.'
+  else
+    echo "[]"
+  fi
+}
+
 # ─── Styled output helpers ───────────────────────────────────────────────────
 
 print_header() {

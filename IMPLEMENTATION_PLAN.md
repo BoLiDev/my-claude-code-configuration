@@ -29,7 +29,7 @@
     - Writes are atomic (write to temp, then `mv`) — interrupted writes don't corrupt
     - Manifest survives multiple install/uninstall cycles without corruption
 
-- [ ] **Implement diff detection engine**
+- [x] **Implement diff detection engine**
 
   - Purpose: Classifies every syncable item by status, which drives the UI pre-selection and orphan surfacing
   - Scope: New diff functions, covers all 4 asset types (CLAUDE.md, agents, commands, skills)
