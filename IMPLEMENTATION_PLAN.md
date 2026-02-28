@@ -17,7 +17,7 @@
     - Ctrl+C at any point during later flows leaves no partial state (trap cleanup)
     - Styled output functions (section headers, status badges, success/error) are defined and reusable
 
-- [ ] **Implement sync manifest read/write operations**
+- [x] **Implement sync manifest read/write operations**
 
   - Purpose: The manifest is the foundation for diff detection, orphan detection, and uninstall — both major flows depend on it
   - Scope: New manifest functions in `install.sh` or a sourced lib, JSON format at `<claude-dir>/.claude-sync-manifest.json`
